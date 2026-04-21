@@ -1,0 +1,10 @@
+{
+  "scripts": {
+    "audit": "npm audit --fix",
+    "security": "npm audit --level=high",
+    "postinstall": "npm audit || true"
+  },
+  "resolutions": {
+    "xlsx": ">=15.0.0"
+  }
+}

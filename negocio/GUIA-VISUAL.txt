@@ -1,0 +1,228 @@
+
+╔═════════════════════════════════════════════════════════════════════════════╗
+║                                                                             ║
+║             ▒▒▒▒▒▒▒▒▒▒▒▒ GUÍA VISUAL DE INICIO ▒▒▒▒▒▒▒▒▒▒▒▒                ║
+║                                                                             ║
+║                  3 PASOS PARA PONER LA APP A FUNCIONAR                     ║
+║                                                                             ║
+╚═════════════════════════════════════════════════════════════════════════════╝
+
+
+PASO 1️⃣  - EJECUTAR INSTALACIÓN AUTOMÁTICA
+═════════════════════════════════════════════════════════════════════════════
+
+    ┌─────────────────────────────────────────────────────────────────┐
+    │                                                                 │
+    │  Abre PowerShell en: c:\Users\andre\Documents\negocio          │
+    │                                                                 │
+    │  Copia y pega esto:                                             │
+    │                                                                 │
+    │  ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓ │
+    │  ┃ powershell -ExecutionPolicy Bypass -File setup-auto.ps1  ┃ │
+    │  ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛ │
+    │                                                                 │
+    │  ⏳ Espera 5-10 minutos (instalando dependencias)               │
+    │                                                                 │
+    └─────────────────────────────────────────────────────────────────┘
+
+    ✓ Se crearán carpetas
+    ✓ Se copiarán archivos
+    ✓ Se instalarán dependencias
+    ✓ Se creará la BD
+    ✓ Se ejecutarán migraciones
+
+
+PASO 2️⃣  - INICIAR BACKEND (Terminal 1)
+═════════════════════════════════════════════════════════════════════════════
+
+    ┌─────────────────────────────────────────────────────────────────┐
+    │                                                                 │
+    │  En PowerShell, ejecuta:                                        │
+    │                                                                 │
+    │  ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓ │
+    │  ┃ cd backend                                                ┃ │
+    │  ┃ npm run dev                                               ┃ │
+    │  ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛ │
+    │                                                                 │
+    │  Debes ver:                                                     │
+    │                                                                 │
+    │  ┌─────────────────────────────────────────────────────────┐   │
+    │  │ 🚀 Server running at http://localhost:3000             │   │
+    │  │ ✅ Connected to database at 2024-04-16...             │   │
+    │  └─────────────────────────────────────────────────────────┘   │
+    │                                                                 │
+    │  ✓ Backend está listo                                           │
+    │  ⚠️  NO cierres esta ventana                                    │
+    │                                                                 │
+    └─────────────────────────────────────────────────────────────────┘
+
+
+PASO 3️⃣  - INICIAR FRONTEND (Terminal 2 - NUEVA)
+═════════════════════════════════════════════════════════════════════════════
+
+    ┌─────────────────────────────────────────────────────────────────┐
+    │                                                                 │
+    │  Abre NUEVA PowerShell (no cierres la anterior)                 │
+    │                                                                 │
+    │  Ejecuta:                                                       │
+    │                                                                 │
+    │  ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓ │
+    │  ┃ cd frontend                                               ┃ │
+    │  ┃ npm run dev                                               ┃ │
+    │  ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛ │
+    │                                                                 │
+    │  Debes ver:                                                     │
+    │                                                                 │
+    │  ┌─────────────────────────────────────────────────────────┐   │
+    │  │ VITE v5.0.0 ready in 500 ms                            │   │
+    │  │ ➜  Local:   http://localhost:5173/                     │   │
+    │  └─────────────────────────────────────────────────────────┘   │
+    │                                                                 │
+    │  ✓ Frontend está listo                                          │
+    │                                                                 │
+    └─────────────────────────────────────────────────────────────────┘
+
+
+PASO 4️⃣  - ABRIR EN NAVEGADOR
+═════════════════════════════════════════════════════════════════════════════
+
+    ┌─────────────────────────────────────────────────────────────────┐
+    │                                                                 │
+    │  Abre tu navegador favorito y ve a:                             │
+    │                                                                 │
+    │  ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓ │
+    │  ┃  http://localhost:5173                                   ┃ │
+    │  ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛ │
+    │                                                                 │
+    │  ¡Verás la página de login!                                     │
+    │                                                                 │
+    └─────────────────────────────────────────────────────────────────┘
+
+
+═════════════════════════════════════════════════════════════════════════════
+PANTALLA ESPERADA:
+═════════════════════════════════════════════════════════════════════════════
+
+Cuando abras http://localhost:5173, verás:
+
+    ╔════════════════════════════════════════════════════════════╗
+    ║                     💼 Contabilidad                        ║
+    ║              Gestión de Ventas y Gastos                    ║
+    ║                                                            ║
+    ║  Nombre:      [_____________________]                      ║
+    ║  Correo:      [_____________________]                      ║
+    ║  Contraseña:  [_____________________]                      ║
+    ║                                                            ║
+    ║  [  Crear Cuenta  ]    ¿Ya tienes cuenta?                ║
+    ║                                                            ║
+    ╚════════════════════════════════════════════════════════════╝
+
+
+═════════════════════════════════════════════════════════════════════════════
+PRUEBA RÁPIDA:
+═════════════════════════════════════════════════════════════════════════════
+
+1. Haz clic en "¿Ya tienes cuenta? Inicia sesión"
+
+2. Llena:
+   - Correo: test@example.com
+   - Contraseña: password123
+   
+3. Haz clic en "Iniciar Sesión"
+
+4. Verás el Dashboard con:
+   - 📦 Productos
+   - 📋 Facturas
+   - 💰 Gastos
+   - 📊 Reportes
+
+
+═════════════════════════════════════════════════════════════════════════════
+FLUJO VISUAL:
+═════════════════════════════════════════════════════════════════════════════
+
+Terminal 1 (Backend)          Terminal 2 (Frontend)          Navegador
+━━━━━━━━━━━━━━━━━━━━━━━━━    ━━━━━━━━━━━━━━━━━━━━━━━━━    ━━━━━━━━━━━━━━
+  npm run dev                   npm run dev                    http://localhost:5173
+         ↓                             ↓                              ↓
+  Port 3000 ✓                  Port 5173 ✓                   Login Page ✓
+         ↓                             ↓                              ↓
+  [Backend corriendo]          [Frontend corriendo]           [App funciona]
+         ↑                             ↑                              ↑
+  API Response <───────────────────────────────────→ HTTP Request
+
+
+═════════════════════════════════════════════════════════════════════════════
+ESTRUCTURA FINAL:
+═════════════════════════════════════════════════════════════════════════════
+
+negocio/
+├── backend/                    ← Backend server (Port 3000)
+│   ├── src/
+│   ├── node_modules/
+│   └── npm run dev
+│
+├── frontend/                   ← Frontend app (Port 5173)
+│   ├── src/
+│   ├── node_modules/
+│   └── npm run dev
+│
+├── Navegador                   ← App en http://localhost:5173
+│   └── Conecta a backend en localhost:3000
+
+
+═════════════════════════════════════════════════════════════════════════════
+✅ CHECKLIST DE CONFIRMACIÓN:
+═════════════════════════════════════════════════════════════════════════════
+
+Antes de empezar, verifica:
+
+☐ Node.js instalado:       node --version
+☐ npm instalado:           npm --version
+☐ PostgreSQL instalado:    psql --version
+
+Si todos devuelven una versión, ¡estás listo!
+
+Después de iniciar:
+
+☐ Backend dice: "Server running at http://localhost:3000"
+☐ Frontend dice: "http://localhost:5173/"
+☐ Navegador abre: http://localhost:5173
+☐ Ves login page
+☐ Puedes registrarte
+
+
+═════════════════════════════════════════════════════════════════════════════
+🛑 PROBLEMAS:
+═════════════════════════════════════════════════════════════════════════════
+
+❌ "npm: no reconocido"
+→ Instala Node.js: https://nodejs.org/
+
+❌ "psql: no reconocido"
+→ Instala PostgreSQL: https://www.postgresql.org/
+
+❌ "Port 3000 already in use"
+→ Ejecuta: netstat -ano | findstr :3000
+→ Luego: taskkill /PID <numero> /F
+
+❌ "Cannot connect to database"
+→ Verifica PostgreSQL está corriendo
+→ En Windows: Services → PostgreSQL → Start
+
+❌ "Página en blanco"
+→ Abre DevTools: F12
+→ Ve a Console
+→ Busca errores en rojo
+
+
+═════════════════════════════════════════════════════════════════════════════
+¿LISTA?
+
+    ► Ejecuta setup-auto.ps1
+    ► O sigue INICIAR-APP.md para pasos manuales
+    
+    ¡Tu app contable estará funcionando en 15 minutos!
+
+
+═════════════════════════════════════════════════════════════════════════════

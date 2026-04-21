@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>App Contable - Gestión de Ventas y Gastos</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/chart.js@4.4.0/dist/chart.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+                'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+                sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script>
+        const { useState, useEffect } = React;
+        const e = React.createElement;
+
+        function Dashboard() {
+            return e('div', { className: 'space-y-6' },
+                e('h1', { className: 'text-4xl font-bold' }, '🏠 Dashboard Principal'),
+                e('div', { className: 'grid grid-cols-4 gap-4' },
+                    e('div', { className: 'bg-gradient-to-br from-blue-50 to-blue-100 p-6 rounded shadow' },
+                        e('div', { className: 'text-sm text-gray-600 font-semibold' }, 'Productos'),
+                        e('div', { className: 'text-3xl font-bold text-blue-600' }, '--')
+                    ),
+                    e('div', { className: 'bg-gradient-to-br from-green-50 to-green-100 p-6 rounded shadow' },
+                        e('div', { className: 'text-sm text-gray-600 font-semibold' }, 'Facturas'),
+                        e('div', { className: 'text-3xl font-bold text-green-600' }, '--')
+                    ),
+                    e('div', { className: 'bg-gradient-to-br from-red-50 to-red-100 p-6 rounded shadow' },
+                        e('div', { className: 'text-sm text-gray-600 font-semibold' }, 'Gastos'),
+                        e('div', { className: 'text-3xl font-bold text-red-600' }, '--')
+                    ),
+                    e('div', { className: 'bg-gradient-to-br from-purple-50 to-purple-100 p-6 rounded shadow' },
+                        e('div', { className: 'text-sm text-gray-600 font-semibold' }, 'Utilidad'),
+                        e('div', { className: 'text-3xl font-bold text-purple-600' }, '--')
+                    )
+                ),
+                e('div', { className: 'grid grid-cols-2 gap-6' },
+                    e('div', { className: 'bg-white p-6 rounded shadow' },
+                        e('h2', { className: 'text-lg font-bold mb-4' }, '📝 Últimas Facturas'),
+                        e('p', { className: 'text-gray-500 text-center py-8' }, 'Navega a Facturas para registrar nuevas ventas')
+                    ),
+                    e('div', { className: 'bg-white p-6 rounded shadow' },
+                        e('h2', { className: 'text-lg font-bold mb-4' }, '🎯 Gestión Rápida'),
+                        e('div', { className: 'space-y-2' },
+                            e('a', { href: '#', className: 'block px-4 py-2 bg-blue-50 text-blue-600 rounded hover:bg-blue-100 cursor-pointer' }, '+ Agregar Producto'),
+                            e('a', { href: '#', className: 'block px-4 py-2 bg-green-50 text-green-600 rounded hover:bg-green-100 cursor-pointer' }, '+ Crear Factura'),
+                            e('a', { href: '#', className: 'block px-4 py-2 bg-red-50 text-red-600 rounded hover:bg-red-100 cursor-pointer' }, '+ Registrar Gasto')
+                        )
+                    )
+                )
+            );
+        }
+
+        function Products() {
+            const [showForm, setShowForm] = useState(false);
+            const [products, setProducts] = useState([
+                { id: 1, code: 'PROD001', name: 'Producto ejemplo', cost: 100, price: 150, stock: 10 }
+            ]);
+            const [formData, setFormData] = useState({ code: '', name: '', cost: '', price: '', stock: '' });
+
+            const handleAddProduct = (e) => {
+                e.preventDefault();
+                if (!formData.code || !formData.name || !formData.cost || !formData.price || !formData.stock) {
+                    alert('Completa todos los campos');
+                    return;
+                }
+                const newProduct = {
+                    id: Math.max(...products.map(p => p.id), 0) + 1,
+                    code: formData.code,
+                    name: formData.name,
+                    cost: parseFloat(formData.cost),
+                    price: parseFloat(formData.price),
+                    stock: parseInt(formData.stock)
+                };
+                setProducts([...products, newProduct]);
+                setFormData({ code: '', name: '', cost: '', price: '', stock: '' });
+                setShowForm(false);
+                alert('✅ Producto agregado');
+            };
+
+            const handleDeleteProduct = (id) => {
+                if (window.confirm('¿Eliminar este producto?')) {
+                    setProducts(products.filter(p => p.id !== id));
+                    alert('✅ Producto eliminado');
+                }
+            };
+
+            return e('div', { className: 'space-y-6' },
+                e('div', { className: 'flex justify-between items-center' },
+                    e('h1', { className: 'text-3xl font-bold' }, '📦 Productos'),
+                    e('button', { onClick: () => setShowForm(!showForm), className: 'bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700' }, 
+                        showForm ? 'Cancelar' : '+ Nuevo Producto'
+                    )
+                ),
+                showForm && e('form', { onSubmit: handleAddProduct, className: 'bg-white p-6 rounded shadow space-y-4' },
+                    e('div', { className: 'grid grid-cols-2 gap-4' },
+                        e('input', { 
+                            type: 'text', 
+                            placeholder: 'Código',
+                            value: formData.code,
+                            onChange: (evt) => setFormData({...formData, code: evt.target.value}),
+                            className: 'border p-2 rounded'
+                        }),
+                        e('input', { 
+                            type: 'text', 
+                            placeholder: 'Nombre',
+                            value: formData.name,
+                            onChange: (evt) => setFormData({...formData, name: evt.target.value}),
+                            className: 'border p-2 rounded'
+                        }),
+                        e('input', { 
+                            type: 'number', 
+                            placeholder: 'Costo',
+                            step: '0.01',
+                            value: formData.cost,
+                            onChange: (evt) => setFormData({...formData, cost: evt.target.value}),
+                            className: 'border p-2 rounded'
+                        }),
+                        e('input', { 
+                            type: 'number', 
+                            placeholder: 'Precio',
+                            step: '0.01',
+                            value: formData.price,
+                            onChange: (evt) => setFormData({...formData, price: evt.target.value}),
+                            className: 'border p-2 rounded'
+                        }),
+                        e('input', { 
+                            type: 'number', 
+                            placeholder: 'Stock',
+                            value: formData.stock,
+                            onChange: (evt) => setFormData({...formData, stock: evt.target.value}),
+                            className: 'border p-2 rounded col-span-2'
+                        })
+                    ),
+                    e('button', { type: 'submit', className: 'w-full bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700' }, 'Guardar Producto')
+                ),
+                e('div', { className: 'bg-white rounded shadow overflow-hidden' },
+                    e('table', { className: 'w-full' },
+                        e('thead', { className: 'bg-gray-100' },
+                            e('tr', null,
+                                e('th', { className: 'px-4 py-3 text-left' }, 'Código'),
+                                e('th', { className: 'px-4 py-3 text-left' }, 'Nombre'),
+                                e('th', { className: 'px-4 py-3 text-right' }, 'Costo'),
+                                e('th', { className: 'px-4 py-3 text-right' }, 'Precio'),
+                                e('th', { className: 'px-4 py-3 text-right' }, 'Stock'),
+                                e('th', { className: 'px-4 py-3 text-center' }, 'Acciones')
+                            )
+                        ),
+                        e('tbody', null,
+                            products.map(p => 
+                                e('tr', { key: p.id, className: 'border-t hover:bg-gray-50' },
+                                    e('td', { className: 'px-4 py-3 font-mono text-sm' }, p.code),
+                                    e('td', { className: 'px-4 py-3' }, p.name),
+                                    e('td', { className: 'px-4 py-3 text-right' }, `$${p.cost.toFixed(2)}`),
+                                    e('td', { className: 'px-4 py-3 text-right' }, `$${p.price.toFixed(2)}`),
+                                    e('td', { className: 'px-4 py-3 text-right font-bold' }, p.stock),
+                                    e('td', { className: 'px-4 py-3 text-center' },
+                                        e('button', { 
+                                            onClick: () => handleDeleteProduct(p.id),
+                                            className: 'text-red-600 hover:text-red-800 font-bold' 
+                                        }, 'Eliminar')
+                                    )
+                                )
+                            )
+                        )
+                    )
+                )
+            );
+        }
+
+        function Invoices() {
+            const [showForm, setShowForm] = useState(false);
+            const [invoices, setInvoices] = useState([
+                { id: 1, number: 'FAC-001', date: '2026-04-19', total: 1500 }
+            ]);
+            const [formData, setFormData] = useState({ number: '', date: new Date().toISOString().split('T')[0], total: '' });
+
+            const handleAddInvoice = (e) => {
+                e.preventDefault();
+                if (!formData.number || !formData.date || !formData.total) {
+                    alert('Completa todos los campos');
+                    return;
+                }
+                const newInvoice = {
+                    id: Math.max(...invoices.map(i => i.id), 0) + 1,
+                    number: formData.number,
+                    date: formData.date,
+                    total: parseFloat(formData.total)
+                };
+                setInvoices([...invoices, newInvoice]);
+                setFormData({ number: '', date: new Date().toISOString().split('T')[0], total: '' });
+                setShowForm(false);
+                alert('✅ Factura agregada');
+            };
+
+            const handleDeleteInvoice = (id) => {
+                if (window.confirm('¿Eliminar esta factura?')) {
+                    setInvoices(invoices.filter(i => i.id !== id));
+                    alert('✅ Factura eliminada');
+                }
+            };
+
+            return e('div', { className: 'space-y-6' },
+                e('div', { className: 'flex justify-between items-center' },
+                    e('h1', { className: 'text-3xl font-bold' }, '📋 Facturas'),
+                    e('button', { onClick: () => setShowForm(!showForm), className: 'bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700' }, 
+                        showForm ? 'Cancelar' : '+ Nueva Factura'
+                    )
+                ),
+                showForm && e('form', { onSubmit: handleAddInvoice, className: 'bg-white p-6 rounded shadow space-y-4' },
+                    e('div', { className: 'grid grid-cols-3 gap-4' },
+                        e('input', { 
+                            type: 'text', 
+                            placeholder: '# Factura',
+                            value: formData.number,
+                            onChange: (evt) => setFormData({...formData, number: evt.target.value}),
+                            className: 'border p-2 rounded'
+                        }),
+                        e('input', { 
+                            type: 'date',
+                            value: formData.date,
+                            onChange: (evt) => setFormData({...formData, date: evt.target.value}),
+                            className: 'border p-2 rounded'
+                        }),
+                        e('input', { 
+                            type: 'number', 
+                            placeholder: 'Total',
+                            step: '0.01',
+                            value: formData.total,
+                            onChange: (evt) => setFormData({...formData, total: evt.target.value}),
+                            className: 'border p-2 rounded'
+                        })
+                    ),
+                    e('button', { type: 'submit', className: 'w-full bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700' }, 'Crear Factura')
+                ),
+                e('div', { className: 'bg-white rounded shadow overflow-hidden' },
+                    e('table', { className: 'w-full' },
+                        e('thead', { className: 'bg-gray-100' },
+                            e('tr', null,
+                                e('th', { className: 'px-4 py-3 text-left' }, '# Factura'),
+                                e('th', { className: 'px-4 py-3' }, 'Fecha'),
+                                e('th', { className: 'px-4 py-3 text-right' }, 'Total'),
+                                e('th', { className: 'px-4 py-3 text-center' }, 'Acciones')
+                            )
+                        ),
+                        e('tbody', null,
+                            invoices.map(inv => 
+                                e('tr', { key: inv.id, className: 'border-t hover:bg-gray-50' },
+                                    e('td', { className: 'px-4 py-3 font-mono font-bold' }, inv.number),
+                                    e('td', { className: 'px-4 py-3' }, inv.date),
+                                    e('td', { className: 'px-4 py-3 text-right font-bold' }, `$${inv.total.toFixed(2)}`),
+                                    e('td', { className: 'px-4 py-3 text-center' },
+                                        e('button', { 
+                                            onClick: () => handleDeleteInvoice(inv.id),
+                                            className: 'text-red-600 hover:text-red-800 font-bold' 
+                                        }, 'Eliminar')
+                                    )
+                                )
+                            )
+                        )
+                    )
+                )
+            );
+        }
+
+        function Expenses() {
+            const [showForm, setShowForm] = useState(false);
+            const [expenses, setExpenses] = useState([
+                { id: 1, date: '2026-04-19', category: 'Transporte', amount: 250 }
+            ]);
+            const [formData, setFormData] = useState({ date: new Date().toISOString().split('T')[0], category: '', amount: '' });
+
+            const handleAddExpense = (e) => {
+                e.preventDefault();
+                if (!formData.date || !formData.category || !formData.amount) {
+                    alert('Completa todos los campos');
+                    return;
+                }
+                const newExpense = {
+                    id: Math.max(...expenses.map(ex => ex.id), 0) + 1,
+                    date: formData.date,
+                    category: formData.category,
+                    amount: parseFloat(formData.amount)
+                };
+                setExpenses([...expenses, newExpense]);
+                setFormData({ date: new Date().toISOString().split('T')[0], category: '', amount: '' });
+                setShowForm(false);
+                alert('✅ Gasto agregado');
+            };
+
+            const handleDeleteExpense = (id) => {
+                if (window.confirm('¿Eliminar este gasto?')) {
+                    setExpenses(expenses.filter(ex => ex.id !== id));
+                    alert('✅ Gasto eliminado');
+                }
+            };
+
+            const totalExpenses = expenses.reduce((sum, exp) => sum + exp.amount, 0);
+
+            return e('div', { className: 'space-y-6' },
+                e('div', { className: 'flex justify-between items-center' },
+                    e('h1', { className: 'text-3xl font-bold' }, '💰 Gastos'),
+                    e('button', { onClick: () => setShowForm(!showForm), className: 'bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700' }, 
+                        showForm ? 'Cancelar' : '+ Nuevo Gasto'
+                    )
+                ),
+                showForm && e('form', { onSubmit: handleAddExpense, className: 'bg-white p-6 rounded shadow space-y-4' },
+                    e('div', { className: 'grid grid-cols-3 gap-4' },
+                        e('input', { 
+                            type: 'date',
+                            value: formData.date,
+                            onChange: (evt) => setFormData({...formData, date: evt.target.value}),
+                            className: 'border p-2 rounded'
+                        }),
+                        e('input', { 
+                            type: 'text', 
+                            placeholder: 'Categoría',
+                            value: formData.category,
+                            onChange: (evt) => setFormData({...formData, category: evt.target.value}),
+                            className: 'border p-2 rounded'
+                        }),
+                        e('input', { 
+                            type: 'number', 
+                            placeholder: 'Monto',
+                            step: '0.01',
+                            value: formData.amount,
+                            onChange: (evt) => setFormData({...formData, amount: evt.target.value}),
+                            className: 'border p-2 rounded'
+                        })
+                    ),
+                    e('button', { type: 'submit', className: 'w-full bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700' }, 'Registrar Gasto')
+                ),
+                e('div', { className: 'grid grid-cols-2 gap-6' },
+                    e('div', { className: 'bg-white p-6 rounded shadow' },
+                        e('h3', { className: 'text-lg font-bold mb-4' }, 'Total Gastos'),
+                        e('div', { className: 'text-3xl font-bold text-red-600' }, `$${totalExpenses.toFixed(2)}`)
+                    ),
+                    e('div', { className: 'bg-white rounded shadow overflow-hidden' },
+                        e('table', { className: 'w-full' },
+                            e('thead', { className: 'bg-gray-100' },
+                                e('tr', null,
+                                    e('th', { className: 'px-4 py-3 text-left' }, 'Top 5 Categorías')
+                                )
+                            ),
+                            e('tbody', null,
+                                [...new Map(expenses.map(e => [e.category, e])).values()].slice(0, 5).map((exp, idx) => 
+                                    e('tr', { key: idx, className: 'border-t hover:bg-gray-50' },
+                                        e('td', { className: 'px-4 py-3' }, exp.category)
+                                    )
+                                )
+                            )
+                        )
+                    )
+                ),
+                e('div', { className: 'bg-white rounded shadow overflow-hidden' },
+                    e('table', { className: 'w-full' },
+                        e('thead', { className: 'bg-gray-100' },
+                            e('tr', null,
+                                e('th', { className: 'px-4 py-3 text-left' }, 'Fecha'),
+                                e('th', { className: 'px-4 py-3 text-left' }, 'Categoría'),
+                                e('th', { className: 'px-4 py-3 text-right' }, 'Monto'),
+                                e('th', { className: 'px-4 py-3 text-center' }, 'Acciones')
+                            )
+                        ),
+                        e('tbody', null,
+                            expenses.map(exp => 
+                                e('tr', { key: exp.id, className: 'border-t hover:bg-gray-50' },
+                                    e('td', { className: 'px-4 py-3 text-sm' }, exp.date),
+                                    e('td', { className: 'px-4 py-3' }, exp.category),
+                                    e('td', { className: 'px-4 py-3 text-right font-bold' }, `$${exp.amount.toFixed(2)}`),
+                                    e('td', { className: 'px-4 py-3 text-center' },
+                                        e('button', { 
+                                            onClick: () => handleDeleteExpense(exp.id),
+                                            className: 'text-red-600 hover:text-red-800 font-bold' 
+                                        }, 'Eliminar')
+                                    )
+                                )
+                            )
+                        )
+                    )
+                )
+            );
+        }
+
+        function Reports() {
+            return e('div', { className: 'space-y-6' },
+                e('h1', { className: 'text-3xl font-bold' }, '📊 Reportes Contables'),
+                e('div', { className: 'grid grid-cols-4 gap-4' },
+                    e('div', { className: 'bg-gradient-to-br from-green-50 to-green-100 p-6 rounded shadow' },
+                        e('div', { className: 'text-sm text-gray-600 font-semibold' }, 'Total Ventas'),
+                        e('div', { className: 'text-3xl font-bold text-green-600' }, '$0.00')
+                    ),
+                    e('div', { className: 'bg-gradient-to-br from-red-50 to-red-100 p-6 rounded shadow' },
+                        e('div', { className: 'text-sm text-gray-600 font-semibold' }, 'Total Gastos'),
+                        e('div', { className: 'text-3xl font-bold text-red-600' }, '$0.00')
+                    ),
+                    e('div', { className: 'bg-gradient-to-br from-blue-50 to-blue-100 p-6 rounded shadow' },
+                        e('div', { className: 'text-sm text-gray-600 font-semibold' }, 'Margen Bruto'),
+                        e('div', { className: 'text-3xl font-bold text-blue-600' }, '0%')
+                    ),
+                    e('div', { className: 'bg-gradient-to-br from-purple-50 to-purple-100 p-6 rounded shadow' },
+                        e('div', { className: 'text-sm text-gray-600 font-semibold' }, 'Utilidad Neta'),
+                        e('div', { className: 'text-3xl font-bold text-purple-600' }, '$0.00')
+                    )
+                )
+            );
+        }
+
+        function App() {
+            const [currentPage, setCurrentPage] = useState('dashboard');
+
+            const pages = {
+                dashboard: e(Dashboard),
+                products: e(Products),
+                invoices: e(Invoices),
+                expenses: e(Expenses),
+                reports: e(Reports),
+            };
+
+            return e('div', { className: 'flex h-screen bg-gray-100' },
+                e('aside', { className: 'w-64 bg-gray-900 text-white p-6 overflow-y-auto' },
+                    e('div', { className: 'mb-8' },
+                        e('h1', { className: 'text-2xl font-bold' }, '💼 Contabilidad'),
+                        e('p', { className: 'text-sm text-gray-400 mt-1' }, 'Gestión de Ventas')
+                    ),
+                    e('nav', { className: 'space-y-2' },
+                        e('button', { 
+                            onClick: () => setCurrentPage('dashboard'),
+                            className: `block w-full text-left px-4 py-3 rounded transition ${currentPage === 'dashboard' ? 'bg-blue-600 text-white font-semibold' : 'text-gray-300 hover:bg-gray-800'}`
+                        }, '🏠 Dashboard'),
+                        e('button', { 
+                            onClick: () => setCurrentPage('products'),
+                            className: `block w-full text-left px-4 py-3 rounded transition ${currentPage === 'products' ? 'bg-blue-600 text-white font-semibold' : 'text-gray-300 hover:bg-gray-800'}`
+                        }, '📦 Productos'),
+                        e('button', { 
+                            onClick: () => setCurrentPage('invoices'),
+                            className: `block w-full text-left px-4 py-3 rounded transition ${currentPage === 'invoices' ? 'bg-blue-600 text-white font-semibold' : 'text-gray-300 hover:bg-gray-800'}`
+                        }, '📋 Facturas'),
+                        e('button', { 
+                            onClick: () => setCurrentPage('expenses'),
+                            className: `block w-full text-left px-4 py-3 rounded transition ${currentPage === 'expenses' ? 'bg-blue-600 text-white font-semibold' : 'text-gray-300 hover:bg-gray-800'}`
+                        }, '💰 Gastos'),
+                        e('button', { 
+                            onClick: () => setCurrentPage('reports'),
+                            className: `block w-full text-left px-4 py-3 rounded transition ${currentPage === 'reports' ? 'bg-blue-600 text-white font-semibold' : 'text-gray-300 hover:bg-gray-800'}`
+                        }, '📊 Reportes')
+                    )
+                ),
+                e('main', { className: 'flex-1 overflow-auto' },
+                    e('div', { className: 'p-8' },
+                        pages[currentPage]
+                    )
+                )
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(e(App));
+    </script>
+</body>
+</html>
