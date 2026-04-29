@@ -1,13 +1,511 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Contabilidad App - Gestión de Ventas y Gastos</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Gestión de Negocio - Importaciones</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f0f2f5;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #1a73e8;
+            margin-bottom: 20px;
+        }
+        h2 {
+            color: #333;
+            margin: 20px 0 10px 0;
+            border-bottom: 2px solid #1a73e8;
+            padding-bottom: 5px;
+        }
+        h3 {
+            color: #555;
+            margin: 15px 0 10px 0;
+        }
+        /* Dashboard cards */
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .card h3 {
+            margin: 0 0 10px 0;
+            color: #666;
+            font-size: 14px;
+        }
+        .card .value {
+            font-size: 28px;
+            font-weight: bold;
+            color: #1a73e8;
+        }
+        .card .value.positive { color: #28a745; }
+        .card .value.negative { color: #dc3545; }
+        /* Formularios */
+        .form-section {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #555;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        button {
+            background: #1a73e8;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        button:hover {
+            background: #1557b0;
+        }
+        button.danger {
+            background: #dc3545;
+        }
+        button.danger:hover {
+            background: #a71d2a;
+        }
+        button.success {
+            background: #28a745;
+        }
+        .tabla-container {
+            overflow-x: auto;
+            background: white;
+            border-radius: 12px;
+            padding: 15px;
+            margin-top: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background: #f8f9fa;
+            font-weight: 600;
+        }
+        tr:hover {
+            background: #f5f5f5;
+        }
+        .estado-activo {
+            color: #28a745;
+            font-weight: bold;
+        }
+        .estado-vendido {
+            color: #dc3545;
+        }
+        .filtros {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        .gastos-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .gasto-item {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 8px;
+        }
+        @media (max-width: 768px) {
+            .dashboard { grid-template-columns: repeat(2, 1fr); }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>📊 Sistema de Gestión de Negocio - Importaciones</h1>
+
+    <!-- DASHBOARD -->
+    <div class="dashboard" id="dashboard">
+        <div class="card"><h3>Total Dólares Gastados</h3><div class="value" id="totalUSD">$0</div></div>
+        <div class="card"><h3>Total Pesos Invertidos</h3><div class="value" id="totalCOP">$0</div></div>
+        <div class="card"><h3>Total Vendido</h3><div class="value positive" id="totalVendido">$0</div></div>
+        <div class="card"><h3>Falta Vender</h3><div class="value negative" id="faltaVender">$0</div></div>
+        <div class="card"><h3>Gastos Operativos</h3><div class="value" id="totalGastos">$0</div></div>
+    </div>
+
+    <!-- SECCIÓN GASTOS -->
+    <div class="form-section">
+        <h2>💰 Gastos Operativos</h2>
+        <div class="gastos-container" id="gastosContainer">
+            <div class="gasto-item"><label>Tiquetes Aéreos: $</label><input type="number" id="gastoTiquetes" value="350" step="any"></div>
+            <div class="gasto-item"><label>Gasolina: $</label><input type="number" id="gastoGasolina" value="50" step="any"></div>
+            <div class="gasto-item"><label>Envío: $</label><input type="number" id="gastoEnvio" value="200" step="any"></div>
+            <div class="gasto-item"><label>Otros Gastos: $</label><input type="number" id="gastoOtros" value="137" step="any"></div>
+        </div>
+        <button onclick="actualizarGastos()">Actualizar Gastos</button>
+    </div>
+
+    <!-- INGRESO RÁPIDO DE FACTURA -->
+    <div class="form-section">
+        <h2>📄 Ingreso Rápido de Factura (lote de productos)</h2>
+        <div class="form-group">
+            <label>Almacén / Tienda:</label>
+            <select id="facturaAlmacen">
+                <option>CONVERSE</option><option>KARL LAGERFELD</option><option>AMERICAN EAGLE</option>
+                <option>WALMART</option><option>COSTCO</option><option>MARSHALLS</option><option>COLUMBIA</option>
+                <option>MICHAEL KORS</option><option>ADIDAS</option><option>ROSS</option><option>GAP</option><option>PUMA</option><option>OTRO</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Productos (formato: Nombre|ValorUSD|Cantidad, uno por línea):</label>
+            <textarea id="facturaProductos" rows="5" placeholder="Ejemplo:
+Tenis Converse|64.2|1
+Chaqueta Adidas|45.99|2
+Medicamento|12.50|1" style="font-family: monospace;"></textarea>
+        </div>
+        <div class="form-group">
+            <label>Valor del Dólar (COP):</label>
+            <input type="number" id="facturaDolar" value="4000" step="any">
+        </div>
+        <button onclick="ingresarFactura()">✅ Ingresar Factura</button>
+        <button onclick="limpiarFactura()">Limpiar</button>
+    </div>
+
+    <!-- INGRESO INDIVIDUAL DE PRODUCTO -->
+    <div class="form-section">
+        <h2>🏷️ Ingreso Individual de Producto</h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px,1fr)); gap: 10px;">
+            <input type="text" id="prodNombre" placeholder="Nombre/Marca">
+            <input type="text" id="prodArticulo" placeholder="Artículo (Zapatos, Camisa...)">
+            <input type="text" id="prodGenero" placeholder="Género">
+            <input type="text" id="prodTalla" placeholder="Talla">
+            <input type="text" id="prodDescripcion" placeholder="Descripción">
+            <input type="number" id="prodValorUSD" placeholder="Valor USD" step="any">
+            <input type="number" id="prodTax" placeholder="Tax (7% auto)" step="any" value="7">
+            <input type="number" id="prodGasto" placeholder="Gasto (2% auto)" step="any" value="2">
+            <input type="number" id="prodPrecioVenta" placeholder="Precio Venta COP">
+            <select id="prodEstado"><option value="ACTIVO">ACTIVO</option><option value="VENDIDO">VENDIDO</option></select>
+            <input type="text" id="prodCliente" placeholder="Nombre del Cliente">
+        </div>
+        <button onclick="ingresarProducto()" style="margin-top:10px">➕ Agregar Producto</button>
+    </div>
+
+    <!-- PESTAÑAS / FILTROS -->
+    <div class="filtros">
+        <button onclick="cargarProductos('todos')">📦 Todos los Productos</button>
+        <button onclick="cargarProductos('ACTIVO')">🟢 Activos</button>
+        <button onclick="cargarProductos('VENDIDO')">🔴 Vendidos</button>
+        <button onclick="mostrarFacturas()">🧾 Ver Facturas</button>
+        <button onclick="exportarDatos()">💾 Exportar Datos (JSON)</button>
+        <button class="danger" onclick="resetearDatos()">⚠️ Resetear Todo</button>
+    </div>
+
+    <!-- TABLA DE PRODUCTOS -->
+    <div class="tabla-container">
+        <h3 id="tituloTabla">Productos</h3>
+        <table id="tablaProductos">
+            <thead>
+                <tr><th>Marca</th><th>Artículo</th><th>Género</th><th>Talla</th><th>Valor USD</th><th>Costo COP</th><th>Precio Venta</th><th>Estado</th><th>Cliente</th></tr>
+            </thead>
+            <tbody id="cuerpoTabla"></tbody>
+        </table>
+    </div>
+
+    <!-- TABLA FACTURAS -->
+    <div class="tabla-container" id="facturasContainer" style="display:none;">
+        <h3>Facturas Registradas</h3>
+        <table id="tablaFacturas"><thead><tr><th>Fecha</th><th>Almacén</th><th>Productos</th><th>Total USD</th><th>Total COP</th></tr></thead><tbody id="cuerpoFacturas"></tbody></table>
+    </div>
+</div>
+
+<script>
+    // ==================== DATOS INICIALES (simulando el archivo Excel) ====================
+    let productos = [];
+    let facturas = [];
+    let gastos = { tiquetes: 350, gasolina: 50, envio: 200, otros: 137 };
+
+    // Función para guardar en localStorage
+    function guardarDatos() {
+        localStorage.setItem('negocio_productos', JSON.stringify(productos));
+        localStorage.setItem('negocio_facturas', JSON.stringify(facturas));
+        localStorage.setItem('negocio_gastos', JSON.stringify(gastos));
+    }
+
+    // Cargar datos guardados
+    function cargarDatosGuardados() {
+        const prodGuardados = localStorage.getItem('negocio_productos');
+        const factGuardadas = localStorage.getItem('negocio_facturas');
+        const gastosGuardados = localStorage.getItem('negocio_gastos');
+        
+        if (prodGuardados) productos = JSON.parse(prodGuardados);
+        if (factGuardadas) facturas = JSON.parse(factGuardadas);
+        if (gastosGuardados) gastos = JSON.parse(gastosGuardados);
+        
+        // Si no hay datos, crear algunos de ejemplo basados en el Excel
+        if (productos.length === 0) {
+            productos = [
+                { id: Date.now()+1, marca:"CONVERSE", articulo:"Tenis", genero:"Hombre", talla:"41", descripcion:"converse", valorUSD:64.2, tax:7, gastoPorc:2, costoCOP:0, precioVenta:320000, estado:"VENDIDO", cliente:"ALBEIRO", fecha: new Date().toISOString() },
+                { id: Date.now()+2, marca:"ADIDAS", articulo:"Tenis", genero:"Hombre", talla:"39.5", descripcion:"azules con naranja", valorUSD:49.98, tax:7, gastoPorc:2, costoCOP:0, precioVenta:320000, estado:"VENDIDO", cliente:"juan José", fecha: new Date().toISOString() },
+                { id: Date.now()+3, marca:"MARSHALLS", articulo:"Tenis", genero:"Dama", talla:"37", descripcion:"Adidas verde agua", valorUSD:32, tax:7, gastoPorc:2, costoCOP:0, precioVenta:265000, estado:"VENDIDO", cliente:"AMPARO", fecha: new Date().toISOString() },
+                { id: Date.now()+4, marca:"COSTCO", articulo:"Medicamento", genero:"", talla:"", descripcion:"omega 3", valorUSD:15.99, tax:7, gastoPorc:2, costoCOP:0, precioVenta:144000, estado:"VENDIDO", cliente:"SONIA SAMPEDRO", fecha: new Date().toISOString() },
+                { id: Date.now()+5, marca:"AMERICAN EAGLE", articulo:"Chompa", genero:"Hombre", talla:"M", descripcion:"verde militar", valorUSD:12.88, tax:7, gastoPorc:2, costoCOP:0, precioVenta:162000, estado:"ACTIVO", cliente:"", fecha: new Date().toISOString() }
+            ];
+            recalcularCostos();
+            guardarDatos();
+        }
+        recalcularCostos();
+        actualizarDashboard();
+        cargarProductos('todos');
+    }
+
+    function recalcularCostos() {
+        const dolar = 4000;
+        productos.forEach(p => {
+            const taxValue = p.valorUSD * (p.tax/100);
+            const gastoValue = p.valorUSD * (p.gastoPorc/100);
+            const totalUSD = p.valorUSD + taxValue + gastoValue;
+            p.costoCOP = totalUSD * dolar;
+        });
+    }
+
+    function actualizarDashboard() {
+        const totalUSD = productos.reduce((sum, p) => sum + p.valorUSD, 0).toFixed(2);
+        const totalCOP = productos.reduce((sum, p) => sum + p.costoCOP, 0);
+        const totalVendido = productos.filter(p => p.estado === 'VENDIDO').reduce((sum, p) => sum + (p.precioVenta || 0), 0);
+        const totalActivo = productos.filter(p => p.estado === 'ACTIVO').reduce((sum, p) => sum + (p.precioVenta || 0), 0);
+        const totalGastos = gastos.tiquetes + gastos.gasolina + gastos.envio + gastos.otros;
+        
+        document.getElementById('totalUSD').innerText = '$' + totalUSD;
+        document.getElementById('totalCOP').innerText = '$' + totalCOP.toLocaleString();
+        document.getElementById('totalVendido').innerText = '$' + totalVendido.toLocaleString();
+        document.getElementById('faltaVender').innerText = '$' + totalActivo.toLocaleString();
+        document.getElementById('totalGastos').innerText = '$' + totalGastos.toLocaleString();
+    }
+
+    function ingresarFactura() {
+        const almacen = document.getElementById('facturaAlmacen').value;
+        const textoProductos = document.getElementById('facturaProductos').value;
+        const dolar = parseFloat(document.getElementById('facturaDolar').value);
+        if (!textoProductos.trim()) { alert("Ingrese productos"); return; }
+        
+        const lineas = textoProductos.split('\n');
+        let productosFactura = [];
+        let totalUSDFactura = 0;
+        
+        for (let linea of lineas) {
+            const partes = linea.split('|');
+            if (partes.length >= 2) {
+                const nombre = partes[0].trim();
+                const valorUSD = parseFloat(partes[1]);
+                const cantidad = partes[2] ? parseInt(partes[2]) : 1;
+                if (!isNaN(valorUSD)) {
+                    for(let i=0; i<cantidad; i++) {
+                        const nuevoProd = {
+                            id: Date.now() + Math.random(),
+                            marca: almacen,
+                            articulo: nombre,
+                            genero: "",
+                            talla: "",
+                            descripcion: "",
+                            valorUSD: valorUSD,
+                            tax: 7,
+                            gastoPorc: 2,
+                            costoCOP: 0,
+                            precioVenta: 0,
+                            estado: "ACTIVO",
+                            cliente: "",
+                            fecha: new Date().toISOString()
+                        };
+                        const taxValue = nuevoProd.valorUSD * 0.07;
+                        const gastoValue = nuevoProd.valorUSD * 0.02;
+                        const totalUSDItem = nuevoProd.valorUSD + taxValue + gastoValue;
+                        nuevoProd.costoCOP = totalUSDItem * dolar;
+                        productos.push(nuevoProd);
+                        productosFactura.push(nombre);
+                        totalUSDFactura += nuevoProd.valorUSD;
+                    }
+                }
+            }
+        }
+        
+        facturas.push({
+            fecha: new Date().toLocaleString(),
+            almacen: almacen,
+            productos: productosFactura.join(', '),
+            totalUSD: totalUSDFactura.toFixed(2),
+            totalCOP: (totalUSDFactura * dolar).toFixed(0)
+        });
+        
+        guardarDatos();
+        actualizarDashboard();
+        cargarProductos('todos');
+        alert(`Factura de ${almacen} ingresada con ${productosFactura.length} productos`);
+        limpiarFactura();
+    }
+    
+    function ingresarProducto() {
+        const marca = document.getElementById('prodNombre').value;
+        const articulo = document.getElementById('prodArticulo').value;
+        const genero = document.getElementById('prodGenero').value;
+        const talla = document.getElementById('prodTalla').value;
+        const descripcion = document.getElementById('prodDescripcion').value;
+        const valorUSD = parseFloat(document.getElementById('prodValorUSD').value);
+        const tax = parseFloat(document.getElementById('prodTax').value);
+        const gastoPorc = parseFloat(document.getElementById('prodGasto').value);
+        let precioVenta = parseFloat(document.getElementById('prodPrecioVenta').value);
+        const estado = document.getElementById('prodEstado').value;
+        const cliente = document.getElementById('prodCliente').value;
+        
+        if (!marca || isNaN(valorUSD)) { alert("Nombre y Valor USD son obligatorios"); return; }
+        
+        const taxValue = valorUSD * (tax/100);
+        const gastoValue = valorUSD * (gastoPorc/100);
+        const totalUSD = valorUSD + taxValue + gastoValue;
+        const costoCOP = totalUSD * 4000;
+        
+        const nuevoProd = {
+            id: Date.now(),
+            marca, articulo, genero, talla, descripcion, valorUSD, tax, gastoPorc,
+            costoCOP, precioVenta: isNaN(precioVenta) ? 0 : precioVenta,
+            estado, cliente, fecha: new Date().toISOString()
+        };
+        productos.push(nuevoProd);
+        guardarDatos();
+        actualizarDashboard();
+        cargarProductos('todos');
+        limpiarProductoIndividual();
+        alert("Producto agregado");
+    }
+    
+    function cargarProductos(filtro) {
+        document.getElementById('facturasContainer').style.display = 'none';
+        document.getElementById('tablaProductos').style.display = 'table';
+        let filtrados = productos;
+        if (filtro !== 'todos') filtrados = productos.filter(p => p.estado === filtro);
+        
+        const tbody = document.getElementById('cuerpoTabla');
+        tbody.innerHTML = '';
+        filtrados.forEach(p => {
+            const row = tbody.insertRow();
+            row.insertCell(0).innerText = p.marca;
+            row.insertCell(1).innerText = p.articulo;
+            row.insertCell(2).innerText = p.genero;
+            row.insertCell(3).innerText = p.talla;
+            row.insertCell(4).innerText = '$' + p.valorUSD;
+            row.insertCell(5).innerText = '$' + (p.costoCOP || 0).toLocaleString();
+            row.insertCell(6).innerText = p.precioVenta ? '$' + p.precioVenta.toLocaleString() : '-';
+            row.insertCell(7).innerHTML = `<span class="${p.estado === 'ACTIVO' ? 'estado-activo' : 'estado-vendido'}">${p.estado}</span>`;
+            row.insertCell(8).innerText = p.cliente || '-';
+        });
+        document.getElementById('tituloTabla').innerText = `Productos - ${filtro === 'todos' ? 'Todos' : filtro}`;
+    }
+    
+    function mostrarFacturas() {
+        document.getElementById('tablaProductos').style.display = 'none';
+        document.getElementById('facturasContainer').style.display = 'block';
+        const tbody = document.getElementById('cuerpoFacturas');
+        tbody.innerHTML = '';
+        facturas.forEach(f => {
+            const row = tbody.insertRow();
+            row.insertCell(0).innerText = f.fecha;
+            row.insertCell(1).innerText = f.almacen;
+            row.insertCell(2).innerText = f.productos;
+            row.insertCell(3).innerText = '$' + f.totalUSD;
+            row.insertCell(4).innerText = '$' + f.totalCOP;
+        });
+    }
+    
+    function actualizarGastos() {
+        gastos.tiquetes = parseFloat(document.getElementById('gastoTiquetes').value) || 0;
+        gastos.gasolina = parseFloat(document.getElementById('gastoGasolina').value) || 0;
+        gastos.envio = parseFloat(document.getElementById('gastoEnvio').value) || 0;
+        gastos.otros = parseFloat(document.getElementById('gastoOtros').value) || 0;
+        guardarDatos();
+        actualizarDashboard();
+        alert("Gastos actualizados");
+    }
+    
+    function limpiarFactura() {
+        document.getElementById('facturaProductos').value = '';
+    }
+    function limpiarProductoIndividual() {
+        document.getElementById('prodNombre').value = '';
+        document.getElementById('prodArticulo').value = '';
+        document.getElementById('prodGenero').value = '';
+        document.getElementById('prodTalla').value = '';
+        document.getElementById('prodDescripcion').value = '';
+        document.getElementById('prodValorUSD').value = '';
+        document.getElementById('prodPrecioVenta').value = '';
+        document.getElementById('prodCliente').value = '';
+    }
+    
+    function exportarDatos() {
+        const datos = { productos, facturas, gastos };
+        const dataStr = JSON.stringify(datos, null, 2);
+        const blob = new Blob([dataStr], {type: "application/json"});
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = "negocio_backup.json";
+        a.click();
+        URL.revokeObjectURL(url);
+    }
+    
+    function resetearDatos() {
+        if(confirm("⚠️ ¿Resetear todos los datos? Esta acción es irreversible.")) {
+            localStorage.clear();
+            location.reload();
+        }
+    }
+    
+    // Cargar valores de gastos al inicio
+    function cargarGastosUI() {
+        document.getElementById('gastoTiquetes').value = gastos.tiquetes;
+        document.getElementById('gastoGasolina').value = gastos.gasolina;
+        document.getElementById('gastoEnvio').value = gastos.envio;
+        document.getElementById('gastoOtros').value = gastos.otros;
+    }
+    
+    cargarDatosGuardados();
+    cargarGastosUI();
+</script>
+</body>
 </html>
